@@ -128,4 +128,41 @@ describe('fakeFetch()', () => {
     expect(responseTime).toBeGreaterThanOrEqual(responseDelay);
     expect(responseTime).toBeLessThanOrEqual(responseDelay + delayThresold);
   });
+
+  it('should throw when an error object is provied', async () => {
+    const error = new Error('ETIMEOUT: the server timedout');
+    const fakeConfig: FakeConfig = {
+      request: '/api/users',
+      error
+    };
+
+    fakeFetch({
+      fakeConfigs: [fakeConfig]
+    });
+
+    try {
+      await fetch('/api/users');
+    } catch (err) {
+      expect(err).toEqual(error);
+    }
+  });
+
+  it('should throw when no error or response property is provied', async () => {
+    const fakeConfig: FakeConfig = {
+      request: '/api/users'
+    };
+
+    fakeFetch({
+      fakeConfigs: [fakeConfig]
+    });
+    const expectedError = new Error(
+      `fake for request /api/users must either contain an error or response property`
+    );
+
+    try {
+      await fetch('/api/users');
+    } catch (err) {
+      expect(err).toEqual(expectedError);
+    }
+  });
 });

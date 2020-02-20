@@ -1,7 +1,8 @@
 export interface FakeConfig {
   request: RequestInfo;
   delay?: number;
-  response: Response;
+  response?: Response;
+  error?: Error;
 }
 
 export interface Config {
@@ -25,17 +26,18 @@ function sendResponse(
   }
 }
 
+function getUrlFromRequest(request: RequestInfo): string {
+  return typeof request === 'object' ? request.url : request;
+}
+
 export default function fakeFetch(config: Config) {
   window.fetch = (
     input: RequestInfo,
     init?: RequestInit
   ): Promise<Response> => {
     const fakeConfig = config.fakeConfigs.find((fakeConfig) => {
-      const requestUrl = typeof input === 'object' ? input.url : input;
-      const fakeConfigUrl =
-        typeof fakeConfig.request === 'object'
-          ? fakeConfig.request.url
-          : fakeConfig.request;
+      const requestUrl = getUrlFromRequest(input);
+      const fakeConfigUrl = getUrlFromRequest(fakeConfig.request);
       const fakeRequestMethod =
         typeof fakeConfig.request === 'object'
           ? fakeConfig.request.method
@@ -45,6 +47,18 @@ export default function fakeFetch(config: Config) {
     });
 
     if (fakeConfig) {
+      if (fakeConfig.error) {
+        throw fakeConfig.error;
+      }
+
+      if (!fakeConfig.response) {
+        const fakeConfigUrl = getUrlFromRequest(fakeConfig.request);
+
+        throw new Error(
+          `fake for request ${fakeConfigUrl} must either contain an error or response property`
+        );
+      }
+
       return sendResponse(
         fakeConfig.delay || config.globalFakeConfig?.delay,
         fakeConfig.response

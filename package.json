@@ -8,7 +8,8 @@
     "lint": "eslint --fix src/index.ts && :",
     "test:watch": "jest --watch",
     "test": "jest",
-    "prettify": "prettier --write"
+    "prettify": "prettier --write",
+    "coverage": "jest --coverage"
   },
   "files": [
     "dist",

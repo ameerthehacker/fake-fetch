@@ -1,0 +1,1 @@
+console.log(`fake fetch for browser coming soon...`);

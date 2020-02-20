@@ -1,0 +1,17 @@
+{
+  "name": "fake-fetch",
+  "version": "0.0.1",
+  "description": "Fake fetch responses in browser or node",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build src/index.ts"
+  },
+  "repository": "https://github.com/ameerthehacker/fake-fetch.git",
+  "author": "ameerthehacker",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "parcel": "^1.12.4",
+    "typescript": "^3.7.5"
+  }
+}

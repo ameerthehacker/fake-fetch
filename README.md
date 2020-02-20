@@ -1,4 +1,4 @@
-# Fake fetch
+# Fake fetch &middot; [![ci-badge](https://github.com/ameerthehacker/fake-fetch/workflows/CI/badge.svg)](https://github.com/ameerthehacker/fake-fetch/actions)
 
 ## Motivation
 

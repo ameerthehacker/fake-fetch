@@ -6,10 +6,23 @@ export interface FakeConfig {
 
 export interface Config {
   globalFakeConfig?: {
-    _404Response: Response;
+    _404Response?: Response;
     delay?: number;
   };
   fakeConfigs: FakeConfig[];
+}
+
+function sendResponse(
+  delay: number | undefined,
+  response: Response
+): Promise<Response> {
+  if (delay) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(response), delay);
+    });
+  } else {
+    return Promise.resolve(response);
+  }
 }
 
 export default function fakeFetch(config: Config) {
@@ -32,12 +45,19 @@ export default function fakeFetch(config: Config) {
     });
 
     if (fakeConfig) {
-      return Promise.resolve(fakeConfig.response);
+      return sendResponse(
+        fakeConfig.delay || config.globalFakeConfig?.delay,
+        fakeConfig.response
+      );
     } else {
       if (config.globalFakeConfig?._404Response) {
-        return Promise.resolve(config.globalFakeConfig._404Response);
+        return sendResponse(
+          config.globalFakeConfig?.delay,
+          config.globalFakeConfig._404Response
+        );
       } else {
-        return Promise.resolve(
+        return sendResponse(
+          config.globalFakeConfig?.delay,
           new Response(undefined, {
             status: 404,
             statusText: 'Not Found'

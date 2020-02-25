@@ -1,7 +1,7 @@
 {
-  "name": "fake-fetch",
+  "name": "fake-browser-fetch",
   "version": "0.0.1",
-  "description": "Fake fetch responses in browser or node",
+  "description": "Fake fetch responses in browser",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

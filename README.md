@@ -1,4 +1,4 @@
-# Fake fetch &middot; [![ci-badge](https://github.com/ameerthehacker/fake-fetch/workflows/CI/badge.svg)](https://github.com/ameerthehacker/fake-fetch/actions)
+# Fake Browser fetch &middot; [![ci-badge](https://github.com/ameerthehacker/fake-fetch/workflows/CI/badge.svg)](https://github.com/ameerthehacker/fake-fetch/actions)
 
 If you hate spinning up a web server everytime you are building a small pet project or demo project then this is for you 🎉
 
@@ -14,13 +14,13 @@ If you hate spinning up a web server everytime you are building a small pet proj
 1. Install it using npm
 
 ```sh
-npm i --dev fake-fetch
+npm i --dev fake-browser-fetch
 ```
 
 1. Add it to your front-end project to fake a simple GET request
 
 ```js
-import fakeFetch from 'fake-fetch';
+import fakeFetch from 'fake-browser-fetch';
 
 ...
 

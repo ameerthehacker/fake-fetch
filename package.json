@@ -4,7 +4,7 @@
   "description": "Fake fetch responses in browser or node",
   "main": "dist/index.js",
   "scripts": {
-    "build": "parcel build src/index.ts",
+    "build": "tsc",
     "lint": "eslint --fix src/index.ts && :",
     "test:watch": "jest --watch",
     "test": "jest",
@@ -45,9 +45,9 @@
     "isomorphic-fetch": "^2.2.1",
     "jest": "^25.1.0",
     "lint-staged": "^10.0.7",
-    "parcel": "^1.12.4",
     "prettier": "^1.19.1",
     "ts-jest": "^25.2.1",
+    "tsc": "^1.20150623.0",
     "typescript": "^3.7.5"
   }
 }

@@ -1,7 +1,7 @@
 export interface FakeConfig {
   request: RequestInfo;
   delay?: number;
-  response?: Response | ((request: RequestInfo) => Response);
+  response?: Response | ((request: RequestInfo) => Promise<Response>);
   error?: Error;
 }
 
@@ -13,15 +13,15 @@ export interface Config {
   fakeConfigs: FakeConfig[];
 }
 
-function sendResponse(
+async function sendResponse(
   request: RequestInfo,
   delay: number | undefined,
-  response: Response | ((request: RequestInfo) => Response)
+  response: Response | ((request: RequestInfo) => Promise<Response>)
 ): Promise<Response> {
   let responseVal: Response;
 
   if (typeof response === 'function') {
-    responseVal = response(request);
+    responseVal = await response(request);
   } else {
     responseVal = response;
   }
@@ -39,12 +39,24 @@ function getUrlFromRequest(request: RequestInfo): string {
   return typeof request === 'object' ? request.url : request;
 }
 
-export default function fakeFetch(config: Config) {
+export default function fakeFetch(config: Config | FakeConfig[]) {
   window.fetch = (
     input: RequestInfo,
     init?: RequestInit
   ): Promise<Response> => {
-    const fakeConfig = config.fakeConfigs.find((fakeConfig) => {
+    let fakeConfigs: FakeConfig[];
+    let globalDelay: number | undefined;
+    let global404Response: Response | undefined;
+
+    if (Array.isArray(config)) {
+      fakeConfigs = config;
+    } else {
+      fakeConfigs = config.fakeConfigs;
+      globalDelay = config.globalFakeConfig?.delay;
+      global404Response = config.globalFakeConfig?._404Response;
+    }
+
+    const fakeConfig = fakeConfigs.find((fakeConfig) => {
       const requestUrl = getUrlFromRequest(input);
       const fakeConfigUrl = getUrlFromRequest(fakeConfig.request);
       const fakeRequestMethod =
@@ -70,20 +82,16 @@ export default function fakeFetch(config: Config) {
 
       return sendResponse(
         fakeConfig.request,
-        fakeConfig.delay || config.globalFakeConfig?.delay,
+        fakeConfig.delay || globalDelay,
         fakeConfig.response
       );
     } else {
-      if (config.globalFakeConfig?._404Response) {
-        return sendResponse(
-          input,
-          config.globalFakeConfig?.delay,
-          config.globalFakeConfig._404Response
-        );
+      if (global404Response) {
+        return sendResponse(input, globalDelay, global404Response);
       } else {
         return sendResponse(
           input,
-          config.globalFakeConfig?.delay,
+          globalDelay,
           new Response(undefined, {
             status: 404,
             statusText: 'Not Found'

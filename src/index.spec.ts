@@ -22,6 +22,25 @@ describe('fakeFetch()', () => {
     expect(response).toEqual(expectedResponse);
   });
 
+  it('should accept array as argumement', async () => {
+    const usersResponse = JSON.stringify({
+      users: ['ameer', 'sudhanshu']
+    });
+    const expectedResponse = new Response(usersResponse);
+    const fakeConfigs: FakeConfig[] = [
+      {
+        request: '/api/users',
+        response: expectedResponse
+      }
+    ];
+
+    fakeFetch(fakeConfigs);
+
+    const response = await fetch('/api/users');
+
+    expect(response).toEqual(expectedResponse);
+  });
+
   it('should return 404 response', async () => {
     const expectedResponse = new Response(undefined, {
       status: 404,
@@ -167,22 +186,24 @@ describe('fakeFetch()', () => {
   });
 
   it('should execute the requestFn for dynamic results', async () => {
-    const usersResponse = JSON.stringify({
-      users: ['ameer', 'sudhanshu']
-    });
-    const expectedResponse = new Response(usersResponse);
     const fakeConfig: FakeConfig = {
-      request: '/api/users',
-      response: () => {
-        return new Response(usersResponse);
+      request: new Request('/api/add', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Ameer' })
+      }),
+      response: async (request: RequestInfo) => {
+        const body = await (request as Request).json();
+
+        return new Response(body.name.toLowerCase());
       }
     };
+    const expectedResponse = new Response('ameer');
 
     fakeFetch({
       fakeConfigs: [fakeConfig]
     });
 
-    const response = await fetch('/api/users');
+    const response = await fetch('/api/add', { method: 'POST' });
 
     expect(response).toEqual(expectedResponse);
   });

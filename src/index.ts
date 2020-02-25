@@ -21,9 +21,9 @@ async function sendResponse(
   let responseVal: Response;
 
   if (typeof response === 'function') {
-    responseVal = await response(request);
+    responseVal = (await response(request)).clone();
   } else {
-    responseVal = response;
+    responseVal = response.clone();
   }
 
   if (delay) {

@@ -1,7 +1,7 @@
 export interface FakeConfig {
   request: RequestInfo;
   delay?: number;
-  response?: Response;
+  response?: Response | ((request: RequestInfo) => Response);
   error?: Error;
 }
 
@@ -14,15 +14,24 @@ export interface Config {
 }
 
 function sendResponse(
+  request: RequestInfo,
   delay: number | undefined,
-  response: Response
+  response: Response | ((request: RequestInfo) => Response)
 ): Promise<Response> {
+  let responseVal: Response;
+
+  if (typeof response === 'function') {
+    responseVal = response(request);
+  } else {
+    responseVal = response;
+  }
+
   if (delay) {
     return new Promise((resolve) => {
-      setTimeout(() => resolve(response), delay);
+      setTimeout(() => resolve(responseVal), delay);
     });
   } else {
-    return Promise.resolve(response);
+    return Promise.resolve(responseVal);
   }
 }
 
@@ -60,17 +69,20 @@ export default function fakeFetch(config: Config) {
       }
 
       return sendResponse(
+        fakeConfig.request,
         fakeConfig.delay || config.globalFakeConfig?.delay,
         fakeConfig.response
       );
     } else {
       if (config.globalFakeConfig?._404Response) {
         return sendResponse(
+          input,
           config.globalFakeConfig?.delay,
           config.globalFakeConfig._404Response
         );
       } else {
         return sendResponse(
+          input,
           config.globalFakeConfig?.delay,
           new Response(undefined, {
             status: 404,

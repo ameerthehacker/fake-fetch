@@ -100,7 +100,7 @@ describe('fakeFetch()', () => {
     const endTime = Date.now();
     const responseTime = endTime - startTime;
 
-    expect(responseTime).toBeGreaterThanOrEqual(responseDelay);
+    expect(responseTime).toBeGreaterThanOrEqual(responseDelay - delayThresold);
     expect(responseTime).toBeLessThanOrEqual(responseDelay + delayThresold);
   });
 
@@ -125,7 +125,7 @@ describe('fakeFetch()', () => {
     const endTime = Date.now();
     const responseTime = endTime - startTime;
 
-    expect(responseTime).toBeGreaterThanOrEqual(responseDelay);
+    expect(responseTime).toBeGreaterThanOrEqual(responseDelay - delayThresold);
     expect(responseTime).toBeLessThanOrEqual(responseDelay + delayThresold);
   });
 
@@ -164,5 +164,26 @@ describe('fakeFetch()', () => {
     } catch (err) {
       expect(err).toEqual(expectedError);
     }
+  });
+
+  it('should execute the requestFn for dynamic results', async () => {
+    const usersResponse = JSON.stringify({
+      users: ['ameer', 'sudhanshu']
+    });
+    const expectedResponse = new Response(usersResponse);
+    const fakeConfig: FakeConfig = {
+      request: '/api/users',
+      response: () => {
+        return new Response(usersResponse);
+      }
+    };
+
+    fakeFetch({
+      fakeConfigs: [fakeConfig]
+    });
+
+    const response = await fetch('/api/users');
+
+    expect(response).toEqual(expectedResponse);
   });
 });
